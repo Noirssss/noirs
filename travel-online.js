@@ -7,7 +7,7 @@ openTravelPlaceEditor=(id,selection={})=>{
  if(selection.addCity&&document.querySelector('#travel-place-dialog').open){$('#place-kind').value='city';$('#place-city').value='';$('#place-lon').value='';$('#place-lat').value='';placeCoordinateChosen=false;updatePlaceFields();$('#place-city').focus();}
 };
 openEditor=(kind,id)=>kind==='travel'?openTravelPlaceEditor(id):showPublicRecord(kind,id);
-async function refreshOnlineTravel(){const state=await lifeAdminCall({action:'travel_get'});lifeTravelRevision=state.revision;data.travel=state.records;render();}
+async function refreshOnlineTravel(){const state=await loadOnlineTravelState();lifeTravelFetchedAt=Date.now();if(lifeTravelRevision===state.revision)return;lifeTravelRevision=state.revision;data.travel=state.records;if(document.body.dataset.page==='travel')render();}
 async function persistTravel(next){
  if(lifeTravelSaving||lifeAuth.member?.role!=='admin')return false;
  const deleted=data.travel.find(row=>!next.travel.some(other=>other.id===row.id));
@@ -16,7 +16,7 @@ async function persistTravel(next){
  lifeTravelSaving=true;const controls=[...$('#travel-place-form').elements];const disabled=controls.map(el=>el.disabled);controls.forEach(el=>el.disabled=true);$('#place-error').textContent='正在保存到云端…';
  try{
   const state=await lifeAdminCall(deleted?{action:'travel_delete',id:deleted.id,revision:placeEditingRevision}:{action:'travel_save',record,revision:placeEditingRevision});
-  data.travel=state.records;lifeTravelRevision=state.revision;hasData=true;render();$('#place-error').textContent='';return true;
+  data.travel=state.records;lifeTravelRevision=state.revision;lifeTravelFetchedAt=Date.now();hasData=true;render();$('#place-error').textContent='';return true;
  }catch(error){$('#place-error').textContent=error.message+'。若其他页面已修改，请关闭编辑、刷新页面后重新编辑。';return false;}
  finally{controls.forEach((el,i)=>el.disabled=disabled[i]);lifeTravelSaving=false;}
 }
@@ -46,5 +46,5 @@ render=()=>{renderBeforeTravelOnline();if(!hasData||document.body.dataset.page!=
 function openTravelCountry(code){if(document.body.dataset.page!=='travel')return;expandedTravelGroups.add(code);view='countries';syncTravelView();render();requestAnimationFrame(()=>[...document.querySelectorAll('[data-country]')].find(el=>el.dataset.country===code)?.scrollIntoView({behavior:'smooth',block:'center'}));}
 function syncTravelView(){document.querySelectorAll('[data-view]').forEach(button=>{const selected=button.dataset.view===view;button.classList.toggle('selected',selected);button.setAttribute('aria-pressed',String(selected));});}
 if(document.body.dataset.page==='travel'){view='countries';syncTravelView();document.querySelector('[data-view="cards"]').textContent='全部记录';}
-window.addEventListener('focus',()=>{if(hasData&&!lifeTravelSaving&&!$('#travel-place-dialog').open)void refreshOnlineTravel().catch(()=>{});});
+window.addEventListener('focus',()=>{if(hasData&&document.body.dataset.page==='travel'&&Date.now()-lifeTravelFetchedAt>30000&&!lifeTravelSaving&&!$('#travel-place-dialog').open)void refreshOnlineTravel().catch(()=>{});});
 

@@ -46,4 +46,6 @@ html[data-auth=login] #life-loading,html[data-collection=ready] #life-loading{di
 .travel-add-city{padding:0;margin:20px 0 0;line-height:1.6}
 .travel-country-empty{line-height:1.7}
 @media(max-width:600px){.travel-country-group{--travel-inset:20px;--travel-mark:36px;--travel-gap:12px}.travel-country-group>summary{padding:20px var(--travel-inset)}.travel-country-mark{font-size:25px;border-radius:12px}.travel-country-content{padding-bottom:20px}.travel-record-row{grid-template-columns:1fr;gap:10px;padding:17px 0}.travel-record-date{text-align:left;display:flex;align-items:center;gap:14px}.travel-record-date>span{margin:0}.travel-record-note{max-width:none}}
+body[data-page=movies] [data-project=travel],body[data-page=travel] [data-project=movies]{display:none!important}
+[data-project][hidden]{display:none!important}
 
