@@ -3,4 +3,33 @@ html:not([data-auth=ready]) main{display:none!important}html[data-auth=ready] #l
 html{background:var(--page-bg)}body{min-height:100dvh}
 
 #life-profile{max-width:1050px;margin:20px auto;display:flex;align-items:center;justify-content:flex-end;gap:14px;padding:0 24px;font-size:13px}#life-profile[hidden]{display:none}#life-avatar{width:42px;height:42px;border-radius:50%;object-fit:cover}#life-profile label{cursor:pointer;color:var(--accent)}#life-profile-status{font-size:12px;color:var(--subtle)}
+html[data-travel-admin=true] #add-travel,html[data-travel-admin=true] #atlas-add{display:inline-flex!important}
+.travel-hierarchy{display:flex;flex-direction:column;gap:16px}
+.travel-country-group{border:1px solid var(--edge);border-radius:22px;background:var(--surface);box-shadow:0 8px 30px #00000005;overflow:hidden}
+.travel-country-group>summary{list-style:none;display:flex;align-items:center;gap:18px;padding:26px;cursor:pointer}
+.travel-country-group>summary::-webkit-details-marker{display:none}
+.travel-country-group>summary strong{font-size:23px;letter-spacing:-.5px}
+.travel-country-mark{display:grid;place-items:center;width:48px;height:48px;border-radius:15px;background:var(--surface-soft);color:var(--accent);font-size:30px}
+.travel-country-meta{display:block;color:var(--subtle);font-size:12px;margin-top:7px}
+.travel-country-chevron{margin-left:auto;color:var(--subtle);transition:transform .2s}
+.travel-country-group[open] .travel-country-chevron{transform:rotate(180deg)}
+.travel-country-content{padding:0 26px 24px;border-top:1px solid var(--edge)}
+.travel-subgroup h4{font-size:12px;font-weight:500;color:var(--subtle);margin:24px 0 10px}
+.travel-record-row{display:flex;align-items:center;justify-content:space-between;gap:20px;width:100%;padding:16px 0;background:transparent;border:0;border-bottom:1px solid var(--edge);border-radius:0;box-shadow:none;text-align:left;color:var(--ink);cursor:pointer}
+.travel-record-row:hover{transform:none;background:var(--surface-soft)}
+.travel-record-row strong{font-size:16px}
+.travel-record-note{display:block;margin-top:7px;max-width:680px;white-space:pre-wrap;font-size:13px;color:var(--subtle)}
+.travel-record-date{flex-shrink:0;text-align:right;font-size:12px;color:var(--subtle)}
+.travel-record-date>span{display:block;margin-top:8px;color:var(--accent)}
+.travel-country-empty{font-size:13px;color:var(--subtle);margin:20px 0}
+.travel-add-city{margin-top:20px}
+#place-error{color:var(--subtle);font-size:13px;line-height:1.7}
+@media(max-width:600px){.travel-country-group>summary{padding:20px;gap:12px}.travel-country-content{padding:0 20px 20px}.travel-country-group>summary strong{font-size:20px}.travel-record-row{gap:12px}.travel-record-note{max-width:200px}}
+html:not([data-auth=login]) #life-login-panel{display:none!important}
+html:not([data-collection=ready]) main{display:none!important}
+#life-loading{min-height:45vh;display:flex;justify-content:center;align-items:center;gap:12px;color:var(--subtle);font-size:13px}
+html[data-auth=login] #life-loading,html[data-collection=ready] #life-loading{display:none}
+.life-loading-dot{width:7px;height:7px;border-radius:50%;background:var(--subtle);animation:life-loading-pulse 1s ease-in-out infinite}
+@keyframes life-loading-pulse{50%{opacity:.25}}
+@media(prefers-reduced-motion:reduce){.life-loading-dot{animation:none}}
 
