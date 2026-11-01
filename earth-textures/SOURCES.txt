@@ -1,0 +1,8 @@
+Day and night Earth textures: Solar System Scope, resized in the official Three.js Earth example. https://www.solarsystemscope.com/textures/ (CC BY 4.0)
+Source: https://threejs.org/examples/webgpu_tsl_earth.html
+Normal/specular assets: Three.js examples/textures/planets.
+
+Blue Marble with ocean bathymetry: https://raw.githubusercontent.com/vasturiano/three-globe/master/example/img/earth-blue-marble.jpg
+Upstream: https://github.com/vasturiano/three-globe/tree/master/example/img
+NASA Blue Marble background: https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-topography-bathymetry/
+Locally cached 4096x2048 JPEG; ocean shelf and seafloor shading, not live wave imagery.

@@ -1,0 +1,4 @@
+Source: Alibaba Cloud DataV Atlas https://datav.aliyun.com/portal/school/atlas/area_selector
+Province: https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json
+Prefecture boundaries: provincial {adcode}_full.json files; level=city only, not county boundaries.
+Coordinates converted from GCJ-02 to WGS84 for satellite alignment. Overview display, not navigation or legal boundary reference.

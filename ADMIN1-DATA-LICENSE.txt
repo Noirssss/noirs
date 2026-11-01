@@ -1,0 +1,3 @@
+Natural Earth public domain. https://www.naturalearthdata.com/about/terms-of-use/
+Source: https://github.com/nvkelso/natural-earth-vector/blob/master/geojson/ne_10m_admin_1_states_provinces_lines.geojson
+Simplified for world overview; not for navigation or legal boundary determinations.

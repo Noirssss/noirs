@@ -1,0 +1,18 @@
+:root{--ease-out:cubic-bezier(.23,1,.32,1)}
+.card-reveal-pending{opacity:0;transform:translateY(36px) scale(.985)}
+/* Movement stays on the compositor; card content remains available immediately. */
+#movies .movie-entry,.travel-country-card{transition:transform 160ms var(--ease-out)}
+#movies .movie-entry:hover,body[data-page=travel] .travel-country-card .travel-card:hover{transform:none}
+.genre-chip-list button{transition:background-color 150ms ease,color 150ms ease,border-color 150ms ease}
+.primary,.filter-toggle,.movie-pagination button,#life-profile-trigger{transition:transform 140ms var(--ease-out),background-color 150ms ease,color 150ms ease}
+@media(hover:hover) and (pointer:fine){
+ #movies .movie-entry:hover,.travel-country-card:hover{transform:translateY(-2px)}
+}
+@media(prefers-reduced-motion:no-preference){
+ #movies .movie-entry:has(>.movie-card:active),.travel-country-card:has(>.travel-card:active){transform:scale(.99)}
+ .primary:active,.filter-toggle:active,.movie-pagination button:enabled:active,#life-profile-trigger:active{transform:scale(.97)}
+}
+@media(prefers-reduced-motion:reduce){
+ #movies .movie-entry,.travel-country-card,.primary,.filter-toggle,.movie-pagination button,#life-profile-trigger{transition:none!important;transform:none!important}
+ .card-reveal-pending{opacity:1}
+}
