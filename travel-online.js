@@ -23,7 +23,7 @@ async function persistTravel(next){
 $('#travel-place-dialog').addEventListener('cancel',event=>{if(lifeTravelSaving)event.preventDefault();});
 function travelCountryKey(record){return resolveTravelUnit(record)?.code||record.countryCode||record.country;}
 const expandedTravelGroups=new Set();
-const travelRow=record=>`<button class="travel-card travel-record-row" data-kind="travel" data-id="${escape(record.id)}"><span><strong>${escape(travelTitle(record))}</strong><span class="travel-record-note">${escape(record.note||'一段新的旅途。')}</span></span><span class="travel-record-date">${escape(record.date.replaceAll('-','.'))}<span>${lifeAuth.member?.role==='admin'?'编辑记录':'查看记录'} ↗</span></span></button>`;
+const travelRow=record=>`<button class="travel-record-row" data-kind="travel" data-id="${escape(record.id)}"><span><strong>${escape(travelTitle(record))}</strong><span class="travel-record-note">${escape(record.note||'一段新的旅途。')}</span></span><span class="travel-record-date">${escape(record.date.replaceAll('-','.'))}<span>${lifeAuth.member?.role==='admin'?'编辑记录':'查看记录'} ↗</span></span></button>`;
 function renderTravelHierarchy(){
  const q=$('#travel-search').value.trim().toLocaleLowerCase(),groups=new Map();
  for(const row of data.travel){const key=travelCountryKey(row);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(row);}
@@ -38,6 +38,7 @@ function renderTravelHierarchy(){
   return `<details class="travel-country-group" data-country="${escape(key)}" ${q||expandedTravelGroups.has(key)?'open':''}><summary><span class="travel-country-mark" aria-hidden="true">◎</span><span><strong>${escape(country)}</strong><span class="travel-country-meta">${unit?.kind==='territory'?'地区':'国家'} · ${cities.size} 座城市 · ${all.length} 条记录</span></span><span class="travel-country-chevron" aria-hidden="true">⌄</span></summary><div class="travel-country-content">${countryRows.length?'<section class="travel-subgroup"><h4>国家 / 地区到访记录</h4>'+countryRows.map(travelRow).join('')+'</section>':''}${[...provinces].map(([province,records])=>'<section class="travel-subgroup"><h4>'+escape(province)+'</h4>'+records.map(travelRow).join('')+'</section>').join('')}${!places.length?'<p class="travel-country-empty">还没有城市记录，可以逐一补上走过的地方。</p>':''}${lifeAuth.member?.role==='admin'?`<button class="text-button travel-add-city" data-unit="${escape(unit?.code||key)}">＋ 添加城市</button>`:''}</div></details>`;
  }).join('')||'<div class="empty">'+(q?'没有找到相关旅行。':'还没有旅行记录，记录第一站吧。')+'</div>';
  list.querySelectorAll('details').forEach(group=>group.addEventListener('toggle',()=>{if(group.open)expandedTravelGroups.add(group.dataset.country);else expandedTravelGroups.delete(group.dataset.country);}));
+ list.querySelectorAll('.travel-record-row').forEach(button=>button.onclick=()=>openTravelPlaceEditor(button.dataset.id));
  list.querySelectorAll('.travel-add-city').forEach(button=>button.onclick=()=>openTravelPlaceEditor(null,{unitCode:button.dataset.unit,addCity:true}));
 }
 const renderBeforeTravelOnline=render;

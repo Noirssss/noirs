@@ -32,4 +32,18 @@ html[data-auth=login] #life-loading,html[data-collection=ready] #life-loading{di
 .life-loading-dot{width:7px;height:7px;border-radius:50%;background:var(--subtle);animation:life-loading-pulse 1s ease-in-out infinite}
 @keyframes life-loading-pulse{50%{opacity:.25}}
 @media(prefers-reduced-motion:reduce){.life-loading-dot{animation:none}}
+/* One shared text column for country headings and their expanded records. */
+.travel-country-group{--travel-inset:26px;--travel-mark:48px;--travel-gap:18px}
+.travel-country-group>summary{padding:26px var(--travel-inset);gap:var(--travel-gap)}
+.travel-country-mark{width:var(--travel-mark);height:var(--travel-mark);flex:0 0 var(--travel-mark)}
+.travel-country-content{padding:0 var(--travel-inset) 24px calc(var(--travel-inset) + var(--travel-mark) + var(--travel-gap))}
+.travel-record-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:24px;padding:18px 0;border:0;border-bottom:1px solid var(--edge);border-radius:0;background:transparent;box-shadow:none;overflow:visible;transition:background-color .2s}
+.travel-record-row:hover{background:transparent;transform:none;box-shadow:none}
+.travel-record-row>span:first-child{min-width:0}
+.travel-record-row strong{display:block;line-height:1.5}
+.travel-record-note{max-width:none;line-height:1.65;overflow-wrap:anywhere}
+.travel-record-row:last-child{border-bottom:0}
+.travel-add-city{padding:0;margin:20px 0 0;line-height:1.6}
+.travel-country-empty{line-height:1.7}
+@media(max-width:600px){.travel-country-group{--travel-inset:20px;--travel-mark:36px;--travel-gap:12px}.travel-country-group>summary{padding:20px var(--travel-inset)}.travel-country-mark{font-size:25px;border-radius:12px}.travel-country-content{padding-bottom:20px}.travel-record-row{grid-template-columns:1fr;gap:10px;padding:17px 0}.travel-record-date{text-align:left;display:flex;align-items:center;gap:14px}.travel-record-date>span{margin:0}.travel-record-note{max-width:none}}
 
