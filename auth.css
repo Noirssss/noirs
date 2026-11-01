@@ -2,7 +2,7 @@ html:not([data-auth=ready]) main{display:none!important}html[data-auth=ready] #l
 
 html{background:var(--page-bg)}body{min-height:100dvh}
 
-#life-profile{max-width:1050px;margin:20px auto;display:flex;align-items:center;justify-content:flex-end;gap:14px;padding:0 24px;font-size:13px}#life-profile[hidden]{display:none}#life-avatar{width:42px;height:42px;border-radius:50%;object-fit:cover}#life-profile label{cursor:pointer;color:var(--accent)}#life-profile-status{font-size:12px;color:var(--subtle)}
+#life-profile{position:relative;margin:0;padding:0;font-size:13px}#life-profile[hidden]{display:none}#life-profile-toggle{display:block;width:38px;height:38px;padding:0;border:0;border-radius:50%;background:var(--surface);cursor:pointer}#life-avatar{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover}#life-profile-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:3px}#life-profile-menu{position:absolute;right:0;top:calc(100% + 12px);z-index:120;width:232px;max-width:calc(100vw - 32px);padding:8px;border:1px solid var(--edge);border-radius:18px;background:var(--surface);box-shadow:0 12px 40px #0002}#life-profile-menu[hidden]{display:none}#life-profile-menu .profile-menu-name{display:block;padding:12px 12px 14px;font-weight:600;overflow-wrap:anywhere;border-bottom:1px solid var(--edge);margin-bottom:5px}#life-profile-menu button,#life-profile-menu .profile-menu-upload{display:flex;align-items:center;justify-content:flex-start;width:100%;min-height:44px;margin:0;padding:10px 12px;border:0;border-radius:10px;background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer}#life-profile-menu button:hover,#life-profile-menu .profile-menu-upload:hover{background:var(--surface-soft)}#life-profile-status{margin:0;padding:0 12px;font-size:12px;color:var(--subtle)}#life-profile-status:not(:empty){padding:8px 12px}
 html[data-travel-admin=true] #add-travel,html[data-travel-admin=true] #atlas-add{display:inline-flex!important}
 .travel-hierarchy{display:flex;flex-direction:column;gap:16px}
 .travel-country-group{border:1px solid var(--edge);border-radius:22px;background:var(--surface);box-shadow:0 8px 30px #00000005;overflow:hidden}
@@ -99,3 +99,44 @@ html body[data-page=travel] .travel-country-card .travel-country-cover{display:b
 #travel-cover-dialog{width:min(520px,calc(100% - 32px));max-height:90dvh;overflow:auto}
 #travel-cover-preview>img{display:block;width:100%;height:auto;max-height:280px;object-fit:contain;border-radius:12px}
 @media(max-width:760px){.travel-country-cover .travel-copy{min-height:140px;padding:18px}.travel-country-cover .travel-copy h3{font-size:22px}#travel-country-dialog{padding:24px}.travel-country-actions{gap:12px 16px}.travel-name-english{font-size:11px}}
+/* Keep cover tops aligned when cards have different amounts of text. */
+html{scrollbar-gutter:stable}
+body[data-page] .intro.page-hero{padding-top:78px;padding-bottom:75px;text-align:center}
+body[data-page] .intro.page-hero h1{width:100%;max-width:900px;margin:0 auto;font-size:clamp(40px,4.8vw,62px);line-height:1.24;letter-spacing:-.04em;min-height:2.48em}
+body[data-page] .intro.page-hero .lead{margin:24px 0 34px;min-height:1.8em;line-height:1.8}
+body[data-page] #movies,body[data-page] .travel-atlas{max-width:1260px;margin-inline:auto;padding:32px 28px 36px}
+body[data-page] [data-project]>.section{max-width:1260px;margin-inline:auto;padding-inline:28px}
+body[data-page] #movies .heading h2,body[data-page] .atlas-heading h2{font-size:34px;line-height:1.25;letter-spacing:-1.4px;margin:0}
+body[data-page] #movies .heading p,body[data-page] .atlas-heading p:not(.eyebrow){font-size:14px;line-height:1.8;margin:12px 0 0}
+@media(max-width:760px){body[data-page] .intro.page-hero{padding-top:52px;padding-bottom:50px}body[data-page] .intro.page-hero h1{font-size:39px;letter-spacing:-1.8px}body[data-page] #movies,body[data-page] .travel-atlas{padding:30px 20px 36px}body[data-page] #movies .heading h2,body[data-page] .atlas-heading h2{font-size:27px;letter-spacing:-1px}body[data-page] #movies .heading p,body[data-page] .atlas-heading p:not(.eyebrow){font-size:12px}}
+@media(max-width:760px){body[data-page] [data-project]>.section{padding-inline:20px}}
+html[data-auth=guest][data-collection=ready] main{display:block!important}
+html[data-auth=guest]:not([data-collection=ready]) main{display:none!important}
+html[data-auth=guest] .movie-info .rating,html[data-auth=guest] #travel-cover-dialog,html[data-auth=guest] .library-actions,html[data-auth=guest] #add-travel,html[data-auth=guest] #add-movie,html[data-auth=guest] #atlas-add{display:none!important}
+html[data-auth=guest] .movie-info .meta>span:empty{display:none}
+#guest-preview,#guest-login{display:none}html[data-auth=guest] #guest-preview{display:block}html[data-auth=guest] #guest-login{display:block;font-size:13px;padding:9px 16px;border-radius:20px;background:var(--ink);color:var(--page-bg)}html[data-auth=guest] #life-login-panel,html[data-auth=guest] #life-profile,html[data-auth=guest] #life-admin-toggle,html[data-auth=guest] #life-signout,html[data-auth=guest] #life-loading{display:none!important}
+#guest-preview>.page-hero{text-align:center}.guest-empty{text-align:center;padding:75px 24px 100px;color:var(--subtle)}.guest-empty h2{color:var(--ink);font-size:28px}.guest-note{color:var(--subtle);font-size:12px}.guest-movie .poster{height:auto;aspect-ratio:2/3;padding:0;background:var(--surface-soft)}.guest-movie .poster img{width:100%;height:100%;object-fit:contain}.guest-movie .movie-card{width:100%}#guest-poster-dialog>img{display:block;max-width:100%;max-height:65dvh;margin:auto;object-fit:contain}#guest-return{margin-top:22px;color:var(--accent)}
+body[data-page] .movie-pagination{max-width:none;height:auto;margin:20px 0;padding:12px 0;display:flex;justify-content:space-between;gap:12px;align-items:center;scroll-margin-top:90px;color:var(--subtle);font-size:13px}
+.movie-pagination[hidden]{display:none}.movie-pagination>div{display:flex;align-items:center;gap:18px}.movie-pagination button{padding:10px 16px;border:1px solid var(--edge);border-radius:12px;background:var(--surface);color:var(--ink)}.movie-pagination button:disabled{opacity:.35;cursor:default}
+.real-poster[data-poster-state=loading]{opacity:0!important}.poster:has(.real-poster[data-poster-state=loading])>small,.poster:has(.real-poster[data-poster-state=loading])>strong,.poster:has(.real-poster[data-poster-state=loading])>.poster-bottom{visibility:hidden}
+@media(max-width:760px){.movie-pagination{font-size:12px}.movie-pagination>div{gap:10px}.movie-pagination button{padding:9px 11px}}
+body[data-page] header nav{position:relative}
+header .project-nav{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap}
+header .project-nav a,header .project-nav a:hover,header .project-nav a[aria-current=page]{background:transparent;box-shadow:none;border-radius:0}
+header .project-nav a[aria-current=page]{color:var(--ink)}
+header .navlinks{margin-left:auto}
+#movies .movie-entry .poster{width:100%;max-width:220px;height:auto;aspect-ratio:2/3;margin-inline:auto}
+.travel-country-cover .landscape{max-height:210px}
+@media(min-width:1100px){#movies .movie-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:24px}}
+@media(max-width:760px){header .project-nav{gap:0}header .project-nav a{padding:9px 10px}.travel-country-cover .landscape{max-height:200px}}
+html body[data-page=travel] .travel-country-card .travel-country-cover{display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch}
+.travel-country-cover .landscape{flex:none;width:100%}
+.travel-country-cover .travel-copy{width:100%;flex:1}
+@media(max-width:760px){
+ #movies .movie-grid{align-items:stretch}
+ #movies .movie-entry{display:flex;flex-direction:column;min-width:0}
+ #movies .movie-entry>.movie-card{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;width:100%;padding:0}
+ #movies .movie-entry .poster{flex:none;width:100%;height:auto;aspect-ratio:2/3}
+ #movies .movie-entry .movie-info{width:100%;text-align:left}
+ #movies .movie-entry>.source-links{margin-top:auto}
+}

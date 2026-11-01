@@ -6,7 +6,7 @@ async function lifeEnsureAtlas(){if(lifeAtlasStarted)return;lifeAtlasStarted=tru
 function lifeSetProject(project,{push=false,restore=false}={}){
  const previous=document.body.dataset.page;if(push&&previous===project)return;
  lifeProjectScroll[previous]=window.scrollY;
- if(push)history.pushState({project},'',new URL('./'+project+'.html',location.href));
+ if(push){const target=new URL('./'+project+'.html',location.href);if(lifeGuestPreview)target.searchParams.set('guest','1');history.pushState({project},'',target);}
  document.body.dataset.page=project;document.title=(project==='travel'?'旅行足迹':'影视收藏')+' · 生活收藏';
  document.querySelectorAll('.project-nav a').forEach(link=>{if(link.pathname.endsWith('/'+project+'.html'))link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
  document.querySelectorAll('[data-project]').forEach(panel=>{const inactive=panel.dataset.project!==project;panel.hidden=inactive;panel.inert=inactive;});
