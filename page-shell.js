@@ -1,0 +1,3 @@
+function updatePageStats(source){if(typeof summarizeTravel==='function'){const stats=summarizeTravel(source.travel);for(const key of ['countries','territories','cities']){const el=document.querySelector('#'+key);if(el)el.textContent=stats[key]}}if(document.body.dataset.page==='travel')return;const movieCount=document.querySelector('#movie-count');const seriesCount=document.querySelector('#series-count');if(movieCount)movieCount.textContent=source.movies.filter(row=>(row.mediaType||'movie')==='movie').length;if(seriesCount)seriesCount.textContent=groupSeriesRecords(source.movies).filter(row=>row.seasons).length}
+// Preserve links from the previous single-page version.
+if(document.body.dataset.page==='travel'&&location.hash==='#movies')location.replace('./movies.html');

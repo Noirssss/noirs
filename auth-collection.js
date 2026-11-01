@@ -1,0 +1,1 @@
+const collectionSync={ready:true,start:async()=>{try{const response=await fetch('./public-collection.json');const body=await response.json();if(!valid(body))throw Error('收藏数据格式无效');data=body;hasData=true;render();document.querySelector('#sync-status').textContent='已登录 · 仅授权账号可查看';}catch(error){document.querySelector('#sync-status').textContent=error.message;}}};
