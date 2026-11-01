@@ -29,8 +29,31 @@ async function deleteTravelPlace(){if($('#place-delete').textContent!=='确认�
 function updateAtlasInteractionHint(){const hint=$('#atlas-hint');if(hint)hint.textContent=atlasState.wheelActive?'滚轮缩放 · 拖动'+(atlasState.mode==='globe'?'旋转':'平移')+' · 点击标记 · 点击外部或 Esc 退出':'点击地图启用滚轮缩放 · 当前滚轮可滚动页面';}
 function setAtlasWheelActive(active){atlasState.wheelActive=active;$('#atlas-stage')?.classList.toggle('is-interacting',active);updateAtlasInteractionHint();}
 function handleAtlasWheel(event){if(!atlasState.wheelActive||event.ctrlKey||!event.deltaY)return;event.preventDefault();const previous=atlasState.zoom;const delta=event.deltaY*(event.deltaMode===1?16:event.deltaMode===2?atlasState.height:1);atlasState.zoom=Math.max(.65,Math.min(atlasState.mode==='globe'?10:24,previous*Math.exp(-Math.max(-200,Math.min(200,delta))*.002)));if(atlasState.mode==='flat'){const rect=event.currentTarget.getBoundingClientRect(),x=event.clientX-rect.left-atlasState.width/2,y=event.clientY-rect.top-atlasState.height/2,ratio=atlasState.zoom/previous;atlasState.panX=x-(x-atlasState.panX)*ratio;atlasState.panY=y-(y-atlasState.panY)*ratio;}$('#atlas-tooltip').hidden=true;drawAtlas();}
-function installAtlasWheelControls(canvas){canvas.addEventListener('wheel',handleAtlasWheel,{passive:false});document.addEventListener('pointerdown',event=>{if(!$('#atlas-stage').contains(event.target))setAtlasWheelActive(false);});document.addEventListener('focusin',event=>{if(!$('#atlas-stage').contains(event.target))setAtlasWheelActive(false);});document.addEventListener('keydown',event=>{if(event.key==='Escape')setAtlasWheelActive(false);});window.addEventListener('blur',()=>setAtlasWheelActive(false));}
+function installAtlasWheelControls(canvas){installAtlasTouchControls(canvas);canvas.addEventListener('wheel',handleAtlasWheel,{passive:false});document.addEventListener('pointerdown',event=>{if(!$('#atlas-stage').contains(event.target))setAtlasWheelActive(false);});document.addEventListener('focusin',event=>{if(!$('#atlas-stage').contains(event.target))setAtlasWheelActive(false);});document.addEventListener('keydown',event=>{if(event.key==='Escape')setAtlasWheelActive(false);});window.addEventListener('blur',()=>setAtlasWheelActive(false));}
 
 let atlasFrame=0,atlasHoverTime=0,atlasInView=true;function drawAtlas(){if(atlasFrame||!atlasState.ready)return;atlasFrame=requestAnimationFrame(()=>{atlasFrame=0;paintAtlas();});}
 function atlasBoundsContain(bounds,point){if(!bounds)return true;const [[west,south],[east,north]]=bounds,[lon,lat]=point;return lat>=south&&lat<=north&&(west<=east?lon>=west&&lon<=east:lon>=west||lon<=east);}
+
+// Pointer Events pinch handling, following MDN's two-pointer gesture pattern.
+function installAtlasTouchControls(canvas){
+ const pointers=new Map();let pinch=null,wasPinching=false;
+ const point=e=>{const rect=canvas.getBoundingClientRect();return {x:(e.clientX-rect.left)*atlasState.width/rect.width,y:(e.clientY-rect.top)*atlasState.height/rect.height};};
+ const pair=()=>{const [a,b]=[...pointers.values()];return {x:(a.x+b.x)/2,y:(a.y+b.y)/2,d:Math.hypot(b.x-a.x,b.y-a.y)};};
+ const begin=()=>{pinch=pair();wasPinching=true;atlasState.drag=null;};
+ canvas.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')return;pointers.set(e.pointerId,point(e));canvas.setPointerCapture(e.pointerId);if(pointers.size>=2){e.stopImmediatePropagation();setAtlasWheelActive(true);begin();$('#atlas-tooltip').hidden=true;}},true);
+ canvas.addEventListener('pointermove',e=>{
+  if(e.pointerType!=='touch'||!pointers.has(e.pointerId))return;pointers.set(e.pointerId,point(e));if(pointers.size<2)return;
+  e.stopImmediatePropagation();e.preventDefault();const next=pair();if(!pinch||pinch.d<1){pinch=next;return;}
+  const previousZoom=atlasState.zoom;atlasState.zoom=Math.max(.65,Math.min(atlasState.mode==='globe'?10:24,previousZoom*next.d/pinch.d));
+  if(atlasState.mode==='flat'){const ratio=atlasState.zoom/previousZoom;atlasState.panX=next.x-atlasState.width/2-(pinch.x-atlasState.width/2-atlasState.panX)*ratio;atlasState.panY=next.y-atlasState.height/2-(pinch.y-atlasState.height/2-atlasState.panY)*ratio;}
+  pinch=next;drawAtlas();
+ },{capture:true,passive:false});
+ const end=e=>{
+  if(e.pointerType!=='touch'||!pointers.has(e.pointerId))return;pointers.delete(e.pointerId);
+  if(wasPinching){e.stopImmediatePropagation();atlasState.drag=null;pinch=null;if(pointers.size>=2)begin();else if(pointers.size===1){const p=[...pointers.values()][0];atlasState.drag={justActivated:true,x:p.x,y:p.y,startX:p.x,startY:p.y,lon:atlasState.lon,lat:atlasState.lat,panX:atlasState.panX,panY:atlasState.panY};}}
+  if(!pointers.size){wasPinching=false;pinch=null;}
+ };
+ for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(event,end,true);
+ window.addEventListener('blur',()=>{pointers.clear();pinch=null;wasPinching=false;atlasState.drag=null;});
+}
 
