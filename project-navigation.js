@@ -21,9 +21,8 @@ function lifeSetProject(project,{push=false,restore=false}={}){
  if(push||restore)window.scrollTo({top:lifeProjectScroll[project]||0,behavior:'instant'});
 }
 function lifeStartProjects(){
- history.scrollRestoration='manual';view='countries';syncTravelView();
+ history.scrollRestoration='manual';view='cards';syncTravelView();
  document.querySelector('.project-nav').addEventListener('click',event=>{const link=event.target.closest('a');if(!link||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||link.target||link.origin!==location.origin)return;const project=link.pathname.endsWith('/travel.html')?'travel':link.pathname.endsWith('/movies.html')?'movies':null;if(!project)return;event.preventDefault();lifeSetProject(project,{push:true});});
  window.addEventListener('popstate',()=>lifeSetProject(lifeProjectFromURL(),{restore:true}));
  lifeSetProject(lifeProjectFromURL());
 }
-

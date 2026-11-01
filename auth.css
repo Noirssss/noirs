@@ -48,4 +48,54 @@ html[data-auth=login] #life-loading,html[data-collection=ready] #life-loading{di
 @media(max-width:600px){.travel-country-group{--travel-inset:20px;--travel-mark:36px;--travel-gap:12px}.travel-country-group>summary{padding:20px var(--travel-inset)}.travel-country-mark{font-size:25px;border-radius:12px}.travel-country-content{padding-bottom:20px}.travel-record-row{grid-template-columns:1fr;gap:10px;padding:17px 0}.travel-record-date{text-align:left;display:flex;align-items:center;gap:14px}.travel-record-date>span{margin:0}.travel-record-note{max-width:none}}
 body[data-page=movies] [data-project=travel],body[data-page=travel] [data-project=movies]{display:none!important}
 [data-project][hidden]{display:none!important}
+.coordinate-fields[hidden]{display:none!important}
+@media(max-width:760px){
+ #travel-place-dialog .place-form-grid{gap:18px}
+ #travel-place-dialog .place-form-grid>label{gap:8px}
+ #travel-place-dialog input:not([type=hidden]),#travel-place-dialog select{display:block;width:100%;min-width:0;height:46px;min-height:46px;margin:0;padding:11px 12px;line-height:22px;font-size:16px;box-sizing:border-box}
+ #travel-place-dialog input[type=date]{appearance:none;-webkit-appearance:none;text-align:left}
+ #travel-place-dialog input[type=date]::-webkit-date-and-time-value{text-align:left;min-height:22px}
+ #travel-place-dialog input[type=date]::-webkit-datetime-edit{padding:0;line-height:22px}
+ #travel-place-dialog textarea{font-size:16px}
+ dialog .modal-head{align-items:center;gap:16px}
+ dialog .icon,.public-preview-heading .icon{display:grid;place-items:center;flex:0 0 32px;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:var(--surface-soft);font-size:24px;line-height:1;color:var(--subtle);box-shadow:none}
+ dialog .icon:focus,.public-preview-heading .icon:focus{outline:none;box-shadow:none}
+ dialog .icon:focus-visible,.public-preview-heading .icon:focus-visible{box-shadow:0 0 0 3px var(--edge)}
+ #movies .media-tabs{display:flex;gap:0;margin-top:22px}
+ #movies .media-tabs .segments{width:auto;max-width:100%;margin:0;justify-content:flex-start;flex-wrap:nowrap;padding:3px;border-radius:11px}
+ #movies .media-tabs .segments button{flex:none;padding:8px 12px;font-size:12px;white-space:nowrap}
+ #movies .library-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;margin-top:16px}
+ #movies .library-toolbar>.library-search{grid-column:1/-1;width:100%;min-width:0;height:44px}
+ #movies .library-toolbar>.sort-control{display:flex;align-items:center;gap:8px;justify-content:flex-start;min-width:0;max-width:100%;height:40px;min-height:40px;padding:0 12px;border-radius:11px;box-shadow:none}
+ #movies .sort-control>span{flex:none;font-size:12px}
+ #movies .sort-control select{flex:1;min-width:0;width:100%;max-width:210px;height:38px;padding:0;font-size:12px;text-overflow:ellipsis}
+ #movies .filter-toggle{height:40px;min-height:40px;padding:0 12px;border-radius:11px;font-size:12px;box-shadow:none}
+}
+/* Shared dropdown alignment for desktop and mobile */
+ #travel-place-dialog select,#movies .sort-control select,#movies .filter-fields select{appearance:none;-webkit-appearance:none;background-color:var(--surface);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='m4 6 4 4 4-4' stroke='%2386868b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:16px 16px}
+ #travel-place-dialog select{padding-right:42px}
+ #movies .sort-control select{max-width:none;padding-right:26px;background-position:right 0 center}
 
+#movies .filter-fields select{padding-right:42px}
+.travel-flag{display:block;width:32px;height:24px;object-fit:contain;border-radius:3px;box-shadow:0 1px 4px #0002}@media(max-width:600px){.travel-flag{width:28px;height:21px}}
+.travel-name-english{display:block;font-size:12px;font-weight:400;line-height:1.5;letter-spacing:0;color:var(--subtle);margin-top:5px}
+.travel-record-province{display:block;color:var(--subtle);font-size:12px;margin-top:6px}
+.travel-country-actions{display:flex;gap:12px 18px;flex-wrap:wrap;align-items:center;margin-top:22px}
+.travel-country-actions .text-button{padding:0;line-height:1.8}
+.travel-country-card{display:flex;flex-direction:column;min-width:0;border:1px solid var(--edge);border-radius:22px;background:var(--surface);box-shadow:0 6px 24px #00000006;overflow:hidden}
+html body[data-page=travel] .travel-country-card .travel-country-cover{display:block;width:100%;flex:1;border:0;border-radius:0;box-shadow:none;background:transparent;transform:none}
+.travel-country-cover .landscape{height:auto;aspect-ratio:3/2}
+.travel-country-cover .real-poster{position:absolute;inset:0;width:100%;height:100%;max-height:none;object-fit:cover;opacity:1}
+.travel-cover-flag{position:absolute;left:18px;bottom:16px;z-index:2}
+.travel-cover-count{position:absolute;right:16px;bottom:16px;z-index:2;padding:5px 10px;background:#ffffffed;border-radius:999px;color:#1d1d1f;font-size:11px}
+.travel-country-cover .travel-copy{min-height:165px}
+.travel-country-cover .travel-copy h3{margin:0;font-size:24px}
+.travel-country-cover .travel-copy .meta{margin-top:16px}
+.travel-country-cover .travel-copy p{margin-top:10px}
+.travel-cover-edit{align-self:flex-start;margin:0 14px 16px}
+#travel-country-dialog{width:min(820px,calc(100% - 32px));max-height:90dvh;overflow:auto;padding:30px}
+#travel-country-dialog>.travel-country-meta{margin-top:20px}
+.travel-city-list{margin-top:24px}
+#travel-cover-dialog{width:min(520px,calc(100% - 32px));max-height:90dvh;overflow:auto}
+#travel-cover-preview>img{display:block;width:100%;height:auto;max-height:280px;object-fit:contain;border-radius:12px}
+@media(max-width:760px){.travel-country-cover .travel-copy{min-height:140px;padding:18px}.travel-country-cover .travel-copy h3{font-size:22px}#travel-country-dialog{padding:24px}.travel-country-actions{gap:12px 16px}.travel-name-english{font-size:11px}}
