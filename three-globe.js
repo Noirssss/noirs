@@ -7,7 +7,7 @@ export async function createLifeGlobe(options) {
   const started=performance.now();
   const loader=new THREE.TextureLoader();
   const asset=name=>new URL('./earth-textures/'+name,import.meta.url).href;
-  let satellite=await loader.loadAsync(asset('earth_preview_1024.jpg'));
+  let satellite=await loader.loadAsync(options.previewTexture||asset('earth_preview_1024.jpg'));
   satellite.colorSpace=THREE.SRGBColorSpace;
   let heightSamples=null,terrainRevision=0;
   function terrainHeight(lon,lat){if(!heightSamples)return 0;if(Math.abs(lat)>89.9)lon=0;const x=((lon+180)%360+360)%360/360*2047,y=Math.max(0,Math.min(1023,(90-lat)/180*1023)),x0=Math.floor(x),y0=Math.floor(y),x1=Math.min(2047,x0+1),y1=Math.min(1023,y0+1),u=x-x0,v=y-y0;const value=(heightSamples[y0*2048+x0]*(1-u)+heightSamples[y0*2048+x1]*u)*(1-v)+(heightSamples[y1*2048+x0]*(1-u)+heightSamples[y1*2048+x1]*u)*v;return Math.pow(value/255,1.3)*.010;}
@@ -71,7 +71,7 @@ export async function createLifeGlobe(options) {
     const longitude=THREE.MathUtils.radToDeg(Math.atan2(-camera.position.z,camera.position.x)),latitude=THREE.MathUtils.radToDeg(Math.asin(camera.position.y/distance)),chinaInView=longitude>50&&longitude<165&&latitude> -10&&latitude<80;
     for(const [kind,fade] of [['province',provinceFade],['city',cityFade]]){const row=subdivisions[kind];if(fade>0&&chinaInView)void loadSubdivision(kind);if(row.borders){row.borders.visible=fade>0;row.borders.material.opacity=fade*(kind==='city'?.55:.76);if(kind==='province')row.borders.material.linewidth=THREE.MathUtils.clamp(1.2-distance*.18,.6,1);}}
     const level=cityFade>0?'city':provinceFade>0?'province':'country';if(canvas.dataset.boundaryLevel!==level)canvas.dataset.boundaryLevel=level;renderer.render(scene,camera);
-    if(!canvas.dataset.firstFrameMs){canvas.dataset.firstFrameMs=Math.round(performance.now()-started).toString();setTimeout(startEnhancement,150);}if(controls.autoRotate)schedule();}
+    if(!canvas.dataset.firstFrameMs){canvas.dataset.firstFrameMs=Math.round(performance.now()-started).toString();stage.dataset.globeReady='true';canvas.removeAttribute('aria-busy');setTimeout(startEnhancement,150);}if(controls.autoRotate)schedule();}
   let detailModules=null;
   function loadDetailModules(){return detailModules||(detailModules=Promise.all([
     import('./vendor/three/lines/LineSegments2.js'),import('./vendor/three/lines/LineSegmentsGeometry.js'),import('./vendor/three/lines/LineMaterial.js')

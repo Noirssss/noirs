@@ -22,6 +22,7 @@ async function initTravelAtlas(initialWorld){
   travelUnits=world.features.map(f=>({...f.properties,code:f.id})).sort((a,b)=>a.label.localeCompare(b.label,'zh-CN'));$('#place-unit').innerHTML=['country','territory'].map(kind=>'<optgroup label="'+(kind==='country'?'主权国家':'地区')+'">'+travelUnits.filter(u=>u.kind===kind).map(u=>'<option value="'+escape(u.code)+'">'+escape(u.label)+'</option>').join('')+'</optgroup>').join('');$('#atlas-cities').innerHTML=travelCityPresets.map(x=>'<option value="'+escape(x[0])+'">'+escape(travelUnits.find(u=>u.code===x[1])?.label||'')+'</option>').join('');$('#china-provinces').innerHTML='北京市 天津市 河北省 山西省 内蒙古自治区 辽宁省 吉林省 黑龙江省 上海市 江苏省 浙江省 安徽省 福建省 江西省 山东省 河南省 湖北省 湖南省 广东省 广西壮族自治区 海南省 重庆市 四川省 贵州省 云南省 西藏自治区 陕西省 甘肃省 青海省 宁夏回族自治区 新疆维吾尔自治区'.split(' ').map(name=>'<option>'+name+'</option>').join('');
   lifeGlobe=await window.createLifeGlobe({canvas,features:atlasState.features,getRecords:()=>atlasState.records,getCoordinates:travelCoordinates,getVisitedCodes:()=>travelVisitedCodes(atlasState.records),featureAt:atlasFeatureAt,onPick:(feature,coordinate)=>openTravelPlaceEditor(null,{unitCode:feature.id,coordinate}),onMarker:id=>openTravelPlaceEditor(id),onActive:setAtlasWheelActive});
   atlasState.ready=true;
+  for(const id of ['atlas-zoom-in','atlas-zoom-out','atlas-reset','atlas-spin'])$('#'+id).disabled=false;
   $('#atlas-zoom-in').onclick=()=>lifeGlobe.zoom(.84);
   $('#atlas-zoom-out').onclick=()=>lifeGlobe.zoom(1/.84);
   $('#atlas-reset').onclick=()=>lifeGlobe.reset();
