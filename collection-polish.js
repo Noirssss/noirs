@@ -51,17 +51,10 @@
     if(old)old.replaceWith(canvas);else poster.prepend(canvas);
     composites.set(poster,{key,canvas});poster.classList.add('poster-composed');
     poster.querySelector('.poster-ambience')?.remove();
-    // A tiny preblurred bitmap also tints the card body, avoiding a live blur filter.
-    const card=poster.closest('.movie-entry');
-    if(card){try{card.style.setProperty('--poster-glass-image',`url(${JSON.stringify(blur.toDataURL())})`);card.classList.add('card-tint-baked');}catch{card.style.removeProperty('--poster-glass-image');}}
     blur.width=blur.height=1;
   }
   document.addEventListener('load', event => {
     if (event.target.matches?.('img.real-poster')) fillPoster(event.target);
-    if (event.target.matches?.('img')) {
-      const card = event.target.closest('.travel-country-card');
-      if (card) card.style.setProperty('--poster-glass-image', `url(${JSON.stringify(event.target.currentSrc || event.target.src)})`);
-    }
   }, true);
   document.querySelectorAll('.poster img.real-poster').forEach(fillPoster);
   document.querySelectorAll('#movie-list .poster').forEach(poster=>{sizeCard(poster);sizes.observe(poster);});

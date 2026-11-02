@@ -1,21 +1,16 @@
 import * as THREE from './vendor/three/three.module.min.js';
 import { OrbitControls } from './vendor/three/OrbitControls.js';
-import { LineSegments2 } from './vendor/three/lines/LineSegments2.js';
-import { LineSegmentsGeometry } from './vendor/three/lines/LineSegmentsGeometry.js';
-import { LineMaterial } from './vendor/three/lines/LineMaterial.js';
 
 // Real WebGL sphere; borders are baked once, never redrawn during a drag.
 export async function createLifeGlobe(options) {
-  const {canvas,features,china,getRecords,getCoordinates,getVisitedCodes,featureAt,onPick,onMarker,onActive}=options;
+  const {canvas,features,getRecords,getCoordinates,getVisitedCodes,featureAt,onPick,onMarker,onActive}=options;
+  const started=performance.now();
   const loader=new THREE.TextureLoader();
-  const [satellite,elevation]=await Promise.all(['earth_blue_marble.jpg','earth_bump_roughness_clouds_4096.jpg'].map(name=>loader.loadAsync(new URL('./earth-textures/'+name,import.meta.url).href)));
+  const asset=name=>new URL('./earth-textures/'+name,import.meta.url).href;
+  let satellite=await loader.loadAsync(asset('earth_preview_1024.jpg'));
   satellite.colorSpace=THREE.SRGBColorSpace;
-  const heightCanvas=document.createElement('canvas');heightCanvas.width=2048;heightCanvas.height=1024;
-  const heightContext=heightCanvas.getContext('2d',{willReadFrequently:true});heightContext.drawImage(elevation.image,0,0,2048,1024);
-  const heightPixels=heightContext.getImageData(0,0,2048,1024).data,heightSamples=new Uint8Array(2048*1024);
-  for(let i=0;i<heightSamples.length;i++)heightSamples[i]=heightPixels[i*4];
-  heightCanvas.width=heightCanvas.height=1;elevation.dispose();elevation.image=null;
-  function terrainHeight(lon,lat){if(Math.abs(lat)>89.9)lon=0;const x=((lon+180)%360+360)%360/360*2047,y=Math.max(0,Math.min(1023,(90-lat)/180*1023)),x0=Math.floor(x),y0=Math.floor(y),x1=Math.min(2047,x0+1),y1=Math.min(1023,y0+1),u=x-x0,v=y-y0;const value=(heightSamples[y0*2048+x0]*(1-u)+heightSamples[y0*2048+x1]*u)*(1-v)+(heightSamples[y1*2048+x0]*(1-u)+heightSamples[y1*2048+x1]*u)*v;return Math.pow(value/255,1.3)*.010;}
+  let heightSamples=null,terrainRevision=0;
+  function terrainHeight(lon,lat){if(!heightSamples)return 0;if(Math.abs(lat)>89.9)lon=0;const x=((lon+180)%360+360)%360/360*2047,y=Math.max(0,Math.min(1023,(90-lat)/180*1023)),x0=Math.floor(x),y0=Math.floor(y),x1=Math.min(2047,x0+1),y1=Math.min(1023,y0+1),u=x-x0,v=y-y0;const value=(heightSamples[y0*2048+x0]*(1-u)+heightSamples[y0*2048+x1]*u)*(1-v)+(heightSamples[y1*2048+x0]*(1-u)+heightSamples[y1*2048+x1]*u)*v;return Math.pow(value/255,1.3)*.010;}
   const stage=canvas.parentElement,scene=new THREE.Scene();
   const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'low-power'});
   canvas.dataset.engine='Three.js r'+THREE.REVISION;
@@ -34,17 +29,14 @@ export async function createLifeGlobe(options) {
   controls.enableZoom=false;controls.autoRotateSpeed=.45;
   controls.touches.ONE=THREE.TOUCH.ROTATE;controls.touches.TWO=THREE.TOUCH.DOLLY_ROTATE;
   controls.saveState();
-  const surface=document.createElement('canvas');surface.width=4096;surface.height=2048;
+  const surface=document.createElement('canvas');surface.width=2048;surface.height=1024;
   const ctx=surface.getContext('2d');
   const texture=new THREE.CanvasTexture(surface);texture.colorSpace=THREE.SRGBColorSpace;
   texture.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
   satellite.anisotropy=texture.anisotropy;
   const dayMaterial=new THREE.MeshBasicMaterial({map:satellite,color:0xe1e8ed,toneMapped:false});
-  const earthGeometry=new THREE.SphereGeometry(1,256,160),positions=earthGeometry.getAttribute('position'),uvs=earthGeometry.getAttribute('uv');
-  let maxRelief=0;
-  for(let i=0;i<positions.count;i++){const h=terrainHeight((uvs.getX(i)-.5)*360,(uvs.getY(i)-.5)*180);maxRelief=Math.max(maxRelief,h);positions.setXYZ(i,positions.getX(i)*(1+h),positions.getY(i)*(1+h),positions.getZ(i)*(1+h));}
-  positions.needsUpdate=true;earthGeometry.computeBoundingSphere();
-  canvas.dataset.terrain='displaced-heightmap';canvas.dataset.maxRelief=maxRelief.toFixed(5);
+  const earthGeometry=new THREE.SphereGeometry(1,128,80);
+  canvas.dataset.terrain='pending';canvas.dataset.textureQuality='preview';
   const sphere=new THREE.Mesh(earthGeometry,dayMaterial);
   const visitedOverlay=new THREE.Mesh(sphere.geometry,new THREE.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false,opacity:.85}));visitedOverlay.scale.setScalar(1.0008);scene.add(visitedOverlay);
   // SphereGeometry maps longitude zero to +X at UV .5.
@@ -65,25 +57,66 @@ export async function createLifeGlobe(options) {
     const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(values,3));return geometry;
   }
   const countryMaterial=new THREE.LineBasicMaterial({color:0xb5d4e5,transparent:true,opacity:.8,depthWrite:false});
-  const provinceMaterial=new LineMaterial({color:0x000000,linewidth:.6,transparent:true,opacity:.42,depthWrite:false,alphaToCoverage:true});
-  const cityMaterial=new LineMaterial({color:0x101820,linewidth:.55,transparent:true,opacity:.5,depthWrite:false,alphaToCoverage:true});
   const countryBorders=new THREE.LineSegments(boundaryGeometry(features,1.004),countryMaterial);
   const visitedBorders=new THREE.LineSegments(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({color:0x64cfff,transparent:true,opacity:.95,depthWrite:false}));visitedBorders.renderOrder=5;scene.add(visitedBorders);
-  const provinceSource=boundaryGeometry(china.provinces.features,1.003);
-  const provinceGeometry=new LineSegmentsGeometry().setPositions(provinceSource.getAttribute('position').array);provinceSource.dispose();
-  const provinceBorders=new LineSegments2(provinceGeometry,provinceMaterial);
-  const citySource=boundaryGeometry(china.cities.features,1.002);
-  const cityGeometry=new LineSegmentsGeometry().setPositions(citySource.getAttribute('position').array);citySource.dispose();
-  const cityBorders=new LineSegments2(cityGeometry,cityMaterial);
-  provinceBorders.visible=false;cityBorders.visible=false;
-  countryBorders.renderOrder=4;provinceBorders.renderOrder=3;cityBorders.renderOrder=2;scene.add(cityBorders,provinceBorders,countryBorders);
-  canvas.dataset.admin1Boundaries=String(china.provinces.features.length);canvas.dataset.cityBoundaries=String(china.cities.features.length);
+  countryBorders.renderOrder=4;scene.add(countryBorders);
+  const subdivisions={province:{file:'china-provinces.json',radius:1.003,order:3},city:{file:'china-cities.json',radius:1.002,order:2}};
+  canvas.dataset.admin1Boundaries='0';canvas.dataset.cityBoundaries='0';
   canvas.dataset.provinceStyle='china-only-zoom-dependent';canvas.dataset.surface='unlit-satellite-day-night';
   const pins=new THREE.Group();scene.add(pins);
   const pinGeometry=new THREE.SphereGeometry(.009,10,8),pinMaterial=new THREE.MeshBasicMaterial({color:0xffc875});
   let stamp='',frame=0,inView=true,spin=false,disposed=false,active=false,lastTime=0,down=null,multi=false,lastHover=0;
   function schedule(){if(!frame&&!disposed&&inView&&!document.hidden&&document.body.dataset.page==='travel')frame=requestAnimationFrame(paint);}
-  function paint(time){frame=0;const delta=lastTime?Math.min((time-lastTime)/1000,.05):1/60;lastTime=time;controls.update(delta);const distance=camera.position.length();const provinceFade=THREE.MathUtils.smoothstep(2.65-distance,0,.35),cityFade=THREE.MathUtils.smoothstep(1.92-distance,0,.23);provinceBorders.visible=provinceFade>0;cityBorders.visible=cityFade>0;provinceMaterial.linewidth=THREE.MathUtils.clamp(1.2-distance*.18,.6,1);provinceMaterial.opacity=provinceFade*.76;cityMaterial.opacity=cityFade*.55;const level=cityFade>0?'city':provinceFade>0?'province':'country';if(canvas.dataset.boundaryLevel!==level)canvas.dataset.boundaryLevel=level;renderer.render(scene,camera);if(controls.autoRotate)schedule();}
+  function paint(time){frame=0;const delta=lastTime?Math.min((time-lastTime)/1000,.05):1/60;lastTime=time;controls.update(delta);const distance=camera.position.length();const provinceFade=THREE.MathUtils.smoothstep(2.65-distance,0,.35),cityFade=THREE.MathUtils.smoothstep(1.92-distance,0,.23);
+    const longitude=THREE.MathUtils.radToDeg(Math.atan2(-camera.position.z,camera.position.x)),latitude=THREE.MathUtils.radToDeg(Math.asin(camera.position.y/distance)),chinaInView=longitude>50&&longitude<165&&latitude> -10&&latitude<80;
+    for(const [kind,fade] of [['province',provinceFade],['city',cityFade]]){const row=subdivisions[kind];if(fade>0&&chinaInView)void loadSubdivision(kind);if(row.borders){row.borders.visible=fade>0;row.borders.material.opacity=fade*(kind==='city'?.55:.76);if(kind==='province')row.borders.material.linewidth=THREE.MathUtils.clamp(1.2-distance*.18,.6,1);}}
+    const level=cityFade>0?'city':provinceFade>0?'province':'country';if(canvas.dataset.boundaryLevel!==level)canvas.dataset.boundaryLevel=level;renderer.render(scene,camera);
+    if(!canvas.dataset.firstFrameMs){canvas.dataset.firstFrameMs=Math.round(performance.now()-started).toString();setTimeout(startEnhancement,150);}if(controls.autoRotate)schedule();}
+  let detailModules=null;
+  function loadDetailModules(){return detailModules||(detailModules=Promise.all([
+    import('./vendor/three/lines/LineSegments2.js'),import('./vendor/three/lines/LineSegmentsGeometry.js'),import('./vendor/three/lines/LineMaterial.js')
+  ]).catch(error=>{detailModules=null;throw error;}));}
+  const yieldFrame=()=>new Promise(resolve=>setTimeout(resolve,0));
+  async function rebuildSubdivision(kind){
+    const row=subdivisions[kind];if(row.building)return row.building;
+    row.building=(async()=>{const [{LineSegments2},{LineSegmentsGeometry},{LineMaterial}]=await loadDetailModules();let geometry;
+      for(;;){const revision=terrainRevision,chunks=[];let length=0;
+        for(let i=0;i<row.features.length;i+=16){await yieldFrame();const part=boundaryGeometry(row.features.slice(i,i+16),row.radius),array=part.getAttribute('position').array;chunks.push(array);length+=array.length;part.dispose();}
+        if(revision!==terrainRevision)continue;
+        const positions=new Float32Array(length);let offset=0;for(const chunk of chunks){positions.set(chunk,offset);offset+=chunk.length;}
+        geometry=new LineSegmentsGeometry().setPositions(positions);break;
+      }
+      if(row.borders){row.borders.geometry.dispose();row.borders.geometry=geometry;}
+      else{const material=new LineMaterial({color:kind==='province'?0x000000:0x101820,linewidth:kind==='province'?.6:.55,transparent:true,opacity:0,depthWrite:false,alphaToCoverage:true});row.borders=new LineSegments2(geometry,material);row.borders.visible=false;row.borders.renderOrder=row.order;scene.add(row.borders);}
+      canvas.dataset[kind+'State']='ready';schedule();
+    })().finally(()=>{row.building=null;});return row.building;
+  }
+  async function loadSubdivision(kind){
+    const row=subdivisions[kind];if(row.promise||row.borders||performance.now()<(row.retryAt||0))return;
+    canvas.dataset[kind+'State']='loading';
+    row.promise=(async()=>{const response=await fetch(new URL('./'+row.file,import.meta.url));if(!response.ok)throw Error('Boundary unavailable');const collection=await response.json();row.features=collection.features;await rebuildSubdivision(kind);canvas.dataset[kind==='province'?'admin1Boundaries':'cityBoundaries']=String(row.features.length);
+    })().catch(()=>{canvas.dataset[kind+'State']='retry';row.retryAt=performance.now()+10000;}).finally(()=>{row.promise=null;});return row.promise;
+  }
+  async function enhanceTextures(){
+    canvas.dataset.detailState='loading';
+    const results=await Promise.allSettled([
+      loader.loadAsync(asset('earth_blue_marble.jpg')).then(high=>{high.colorSpace=THREE.SRGBColorSpace;high.anisotropy=texture.anisotropy;const old=satellite;satellite=high;dayMaterial.map=high;dayMaterial.needsUpdate=true;old.dispose();canvas.dataset.textureQuality='high';schedule();}),
+      loader.loadAsync(asset('earth_bump_roughness_clouds_4096.jpg')).then(async elevation=>{
+        const heightCanvas=document.createElement('canvas');heightCanvas.width=2048;heightCanvas.height=1024;
+        const context=heightCanvas.getContext('2d',{willReadFrequently:true});context.drawImage(elevation.image,0,0,2048,1024);
+        const pixels=context.getImageData(0,0,2048,1024).data;heightSamples=new Uint8Array(2048*1024);
+        for(let i=0;i<heightSamples.length;i++)heightSamples[i]=pixels[i*4];heightCanvas.width=heightCanvas.height=1;elevation.dispose();elevation.image=null;terrainRevision++;
+        await yieldFrame();const geometry=new THREE.SphereGeometry(1,256,160),positions=geometry.getAttribute('position'),uvs=geometry.getAttribute('uv');let maxRelief=0;
+        for(let i=0;i<positions.count;i++){const h=terrainHeight((uvs.getX(i)-.5)*360,(uvs.getY(i)-.5)*180);maxRelief=Math.max(maxRelief,h);positions.setXYZ(i,positions.getX(i)*(1+h),positions.getY(i)*(1+h),positions.getZ(i)*(1+h));}
+        positions.needsUpdate=true;geometry.computeBoundingSphere();const old=sphere.geometry;sphere.geometry=geometry;visitedOverlay.geometry=geometry;old.dispose();
+        countryBorders.geometry.dispose();countryBorders.geometry=boundaryGeometry(features,1.004);stamp='';refresh();
+        for(const [kind,row] of Object.entries(subdivisions))if(row.borders)void rebuildSubdivision(kind).catch(()=>{});
+        canvas.dataset.terrain='displaced-heightmap';canvas.dataset.maxRelief=maxRelief.toFixed(5);schedule();
+      })
+    ]);canvas.dataset.detailState=results.every(r=>r.status==='fulfilled')?'ready':'partial';
+  }
+  let enhancementStarted=false;
+  function startEnhancement(){if(enhancementStarted||!canvas.dataset.firstFrameMs||!inView||document.hidden||document.body.dataset.page!=='travel')return;enhancementStarted=true;void enhanceTextures();}
   controls.addEventListener('change',schedule);
   let nightMaterial=null,night=false;
   const dayNight=document.createElement('button');dayNight.id='atlas-daynight';dayNight.type='button';dayNight.style.fontSize='17px';
@@ -128,16 +161,17 @@ export async function createLifeGlobe(options) {
   window.addEventListener('blur',()=>setActive(false));
   canvas.addEventListener('keydown',event=>{const direction={ArrowLeft:[8,0],ArrowRight:[-8,0],ArrowUp:[0,5],ArrowDown:[0,-5]}[event.key];if(!direction)return;event.preventDefault();const p=camera.position.clone(),lon=THREE.MathUtils.radToDeg(Math.atan2(-p.z,p.x)),lat=THREE.MathUtils.radToDeg(Math.asin(p.y/p.length()));camera.position.copy(vector(lon+direction[0],Math.max(-80,Math.min(80,lat+direction[1])),p.length()));controls.update();schedule();});
   new ResizeObserver(resize).observe(stage);
-  new IntersectionObserver(entries=>{inView=entries[0].isIntersecting;if(inView){lastTime=0;schedule();}else if(frame){cancelAnimationFrame(frame);frame=0;}}).observe(stage);
+  new IntersectionObserver(entries=>{inView=entries[0].isIntersecting;if(inView){lastTime=0;schedule();startEnhancement();}else if(frame){cancelAnimationFrame(frame);frame=0;}}).observe(stage);
   const reduce=matchMedia('(prefers-reduced-motion: reduce)');
   function syncSpin(){controls.autoRotate=spin&&!reduce.matches;$('#atlas-spin').setAttribute('aria-pressed',String(controls.autoRotate));schedule();}
   reduce.addEventListener('change',()=>{controls.enableDamping=!reduce.matches;syncSpin();});controls.enableDamping=!reduce.matches;
   new MutationObserver(refresh).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-  new MutationObserver(()=>{if(document.body.dataset.page==='travel'){resize();schedule();}else{spin=false;controls.autoRotate=false;$('#atlas-spin').setAttribute('aria-pressed','false');if(frame){cancelAnimationFrame(frame);frame=0;}}}).observe(document.body,{attributes:true,attributeFilter:['data-page']});
-  document.addEventListener('visibilitychange',()=>{if(document.hidden&&frame){cancelAnimationFrame(frame);frame=0;}else{lastTime=0;schedule();}});
+  new MutationObserver(()=>{if(document.body.dataset.page==='travel'){resize();schedule();startEnhancement();}else{spin=false;controls.autoRotate=false;$('#atlas-spin').setAttribute('aria-pressed','false');if(frame){cancelAnimationFrame(frame);frame=0;}}}).observe(document.body,{attributes:true,attributeFilter:['data-page']});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&frame){cancelAnimationFrame(frame);frame=0;}else{lastTime=0;schedule();startEnhancement();}});
   canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();disposed=true;if(frame)cancelAnimationFrame(frame);$('#atlas-summary').textContent='地球图形连接已中断，请刷新页面重试';});
   canvas.addEventListener('webglcontextrestored',()=>{disposed=false;texture.needsUpdate=true;refresh();});
   resize();refresh();updateHint();
+  // Optional detail starts only after the first visible frame, including offscreen initialization.
   function updateHint(){onActive(active);}
   return {refresh,zoom(factor){camera.position.multiplyScalar(factor);camera.position.setLength(Math.max(controls.minDistance,Math.min(controls.maxDistance,camera.position.length())));controls.update();schedule();},reset(){controls.reset();schedule();},toggleSpin(){spin=!spin;syncSpin();},focus(lon,lat){camera.position.copy(vector(lon,lat,camera.position.length()));controls.update();schedule();}};
 }

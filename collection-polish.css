@@ -1,15 +1,13 @@
 .poster canvas.poster-composite{position:absolute;inset:0;display:block;width:100%;height:100%;z-index:1;pointer-events:none}
 .poster.poster-composed>img.real-poster{visibility:hidden;opacity:0!important}
 .poster.poster-composed>:is(small,strong,.poster-bottom){visibility:hidden}
-#movies .movie-entry.card-tint-baked::before{filter:none;image-rendering:auto}
 @media(hover:none),(pointer:coarse){#movies .movie-entry,.travel-country-card{backdrop-filter:none;-webkit-backdrop-filter:none}}
 .poster img.real-poster{inset:auto;left:50%;top:50%;transform:translate(-50%,-50%);background:transparent;object-fit:contain;z-index:1}
 .poster:has(img.real-poster[data-poster-state=ready]):not(:has(img.real-poster[hidden]))>:is(small,strong,.poster-bottom){visibility:hidden}
 .poster:has(img.real-poster[hidden]) .poster-ambience{display:none}
-#movies .movie-entry,.travel-country-card{position:relative;isolation:isolate;overflow:hidden;background:rgba(255,255,255,.72)!important;border:1px solid rgba(255,255,255,.74);box-shadow:inset 0 1px 0 #fff9,0 8px 26px #2333470a;backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2)}
-#movies .movie-entry::before,.travel-country-card::before{content:'';position:absolute;inset:-24px;z-index:-1;background-image:var(--poster-glass-image,none);background-position:center;background-size:cover;filter:blur(24px);opacity:.18;pointer-events:none}
-[data-theme=dark] #movies .movie-entry,[data-theme=dark] .travel-country-card{background:rgba(35,38,44,.66)!important;border-color:#ffffff20;box-shadow:inset 0 1px 0 #ffffff0d,0 10px 30px #00000016}
-[data-theme=dark] #movies .movie-entry::before,[data-theme=dark] .travel-country-card::before{opacity:.23}
+#movies .movie-entry,.travel-country-card{position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(155deg,rgba(255,255,255,.82),rgba(244,245,248,.58))!important;border:1px solid rgba(210,214,222,.48);box-shadow:inset 0 1px 0 #ffffffe6,inset 1px 0 0 #ffffff66,0 8px 26px #2333470a;backdrop-filter:blur(12px) saturate(1.05);-webkit-backdrop-filter:blur(12px) saturate(1.05)}
+#movies .movie-entry::before,.travel-country-card::before{content:none}
+[data-theme=dark] #movies .movie-entry,[data-theme=dark] .travel-country-card{background:linear-gradient(155deg,rgba(47,49,54,.78),rgba(29,31,36,.64))!important;border-color:#ffffff1c;box-shadow:inset 0 1px 0 #ffffff16,inset 1px 0 0 #ffffff05,0 10px 30px #00000020}
 .travel-country-card .travel-country-cover{background:transparent!important}
 #movies #movie-list{grid-auto-rows:1fr;align-items:stretch}
 #movies .movie-entry{display:flex;flex-direction:column;height:var(--movie-card-height,auto);min-height:0}
@@ -58,3 +56,4 @@ html[data-movie-admin=true] #add-movie{display:inline-flex!important}
 .life-rating-tools select{width:100%;border:1px solid var(--edge);border-radius:12px;padding:12px;background:var(--surface);color:var(--ink);font:inherit}
 .rating-admin-actions{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}.rating-admin-actions button{min-height:40px;font-size:12px;padding:10px 15px}
 .life-rating-tools[hidden]{display:none}
+@media(hover:none),(pointer:coarse){#movies .movie-entry,.travel-country-card{backdrop-filter:none;-webkit-backdrop-filter:none}}

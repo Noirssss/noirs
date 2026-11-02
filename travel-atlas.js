@@ -14,14 +14,13 @@ function atlasFeatureAt(point){return point&&(atlasState.features.find(f=>f.geom
 function updateAtlasInteractionHint(){const hint=$('#atlas-hint');if(hint)hint.textContent=atlasState.wheelActive?'拖动旋转 · 双指或滚轮缩放 · 点击国家查看 · Esc 退出':'拖动旋转地球 · 双指缩放 · 点击后启用滚轮';}
 function setAtlasWheelActive(active){atlasState.wheelActive=active;updateAtlasInteractionHint();}
 function pickPreset(name){const preset=travelCityPresets.find(x=>x[0]===name.trim());if(!preset)return false;lifeGlobe?.focus(preset[3],preset[4]);openTravelPlaceEditor(null,{unitCode:preset[1],city:preset[0],province:preset[2],coordinate:preset.slice(3,5)});return true;}
-async function initTravelAtlas(){
+async function initTravelAtlas(initialWorld){
  const canvas=$('#travel-canvas');if(!canvas)return;
  try{
-  const responses=await Promise.all([fetch('./world-boundaries.json'),fetch('./china-boundaries.json')]);if(responses.some(r=>!r.ok))throw Error('地球边界数据加载失败');
-  const [world,china]=await Promise.all(responses.map(r=>r.json()));atlasState.features=world.features;
+  const world=initialWorld||await fetch('./world-overview.json').then(response=>{if(!response.ok)throw Error('地球边界数据加载失败');return response.json();});atlasState.features=world.features;
   for(const feature of atlasState.features)feature.atlasBounds=d3.geoBounds(feature);
   travelUnits=world.features.map(f=>({...f.properties,code:f.id})).sort((a,b)=>a.label.localeCompare(b.label,'zh-CN'));$('#place-unit').innerHTML=['country','territory'].map(kind=>'<optgroup label="'+(kind==='country'?'主权国家':'地区')+'">'+travelUnits.filter(u=>u.kind===kind).map(u=>'<option value="'+escape(u.code)+'">'+escape(u.label)+'</option>').join('')+'</optgroup>').join('');$('#atlas-cities').innerHTML=travelCityPresets.map(x=>'<option value="'+escape(x[0])+'">'+escape(travelUnits.find(u=>u.code===x[1])?.label||'')+'</option>').join('');$('#china-provinces').innerHTML='北京市 天津市 河北省 山西省 内蒙古自治区 辽宁省 吉林省 黑龙江省 上海市 江苏省 浙江省 安徽省 福建省 江西省 山东省 河南省 湖北省 湖南省 广东省 广西壮族自治区 海南省 重庆市 四川省 贵州省 云南省 西藏自治区 陕西省 甘肃省 青海省 宁夏回族自治区 新疆维吾尔自治区'.split(' ').map(name=>'<option>'+name+'</option>').join('');
-  lifeGlobe=await window.createLifeGlobe({canvas,features:atlasState.features,china,getRecords:()=>atlasState.records,getCoordinates:travelCoordinates,getVisitedCodes:()=>travelVisitedCodes(atlasState.records),featureAt:atlasFeatureAt,onPick:(feature,coordinate)=>openTravelPlaceEditor(null,{unitCode:feature.id,coordinate}),onMarker:id=>openTravelPlaceEditor(id),onActive:setAtlasWheelActive});
+  lifeGlobe=await window.createLifeGlobe({canvas,features:atlasState.features,getRecords:()=>atlasState.records,getCoordinates:travelCoordinates,getVisitedCodes:()=>travelVisitedCodes(atlasState.records),featureAt:atlasFeatureAt,onPick:(feature,coordinate)=>openTravelPlaceEditor(null,{unitCode:feature.id,coordinate}),onMarker:id=>openTravelPlaceEditor(id),onActive:setAtlasWheelActive});
   atlasState.ready=true;
   $('#atlas-zoom-in').onclick=()=>lifeGlobe.zoom(.84);
   $('#atlas-zoom-out').onclick=()=>lifeGlobe.zoom(1/.84);

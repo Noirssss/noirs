@@ -2,7 +2,7 @@
 const lifeProjectScroll={movies:0,travel:0};let lifeGenresStarted=false,lifeAtlasStarted=false;
 function lifeProjectFromURL(){return location.pathname.endsWith('/travel.html')?'travel':'movies';}
 function lifeLoadScript(path){return new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=path;script.onload=resolve;script.onerror=()=>{script.remove();reject(Error('地图组件加载失败'));};document.head.append(script);});}
-async function lifeEnsureAtlas(){if(lifeAtlasStarted)return;lifeAtlasStarted=true;try{await lifeLoadScript('./d3-array.min.js');await lifeLoadScript('./d3-geo.min.js');const globeModule=await import('./three-globe.js?v=1');window.createLifeGlobe=globeModule.createLifeGlobe;await initTravelAtlas();}catch(error){lifeAtlasStarted=false;$('#atlas-summary').textContent=error.message;}}
+async function lifeEnsureAtlas(){if(lifeAtlasStarted)return;lifeAtlasStarted=true;try{const [,globeModule,world]=await Promise.all([lifeLoadScript('./d3-array.min.js').then(()=>lifeLoadScript('./d3-geo.min.js')),import('./three-globe.js?v=globe-progressive-1'),fetch('./world-overview.json').then(response=>{if(!response.ok)throw Error('地球边界加载失败');return response.json();})]);window.createLifeGlobe=globeModule.createLifeGlobe;await initTravelAtlas(world);}catch(error){lifeAtlasStarted=false;$('#atlas-summary').textContent=error.message;}}
 function lifeSetProject(project,{push=false,restore=false}={}){
  const previous=document.body.dataset.page;if(push&&previous===project)return;
  lifeProjectScroll[previous]=window.scrollY;
