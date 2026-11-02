@@ -1,6 +1,9 @@
-.poster .poster-ambience{position:absolute;inset:-18px;z-index:0;background-position:center;background-size:100% 100%;filter:blur(22px);pointer-events:none}
+.poster canvas.poster-composite{position:absolute;inset:0;display:block;width:100%;height:100%;z-index:1;pointer-events:none}
+.poster.poster-composed>img.real-poster{visibility:hidden;opacity:0!important}
+.poster.poster-composed>:is(small,strong,.poster-bottom){visibility:hidden}
+#movies .movie-entry.card-tint-baked::before{filter:none;image-rendering:auto}
+@media(hover:none),(pointer:coarse){#movies .movie-entry,.travel-country-card{backdrop-filter:none;-webkit-backdrop-filter:none}}
 .poster img.real-poster{inset:auto;left:50%;top:50%;transform:translate(-50%,-50%);background:transparent;object-fit:contain;z-index:1}
-.poster img.real-poster.poster-feathered{-webkit-mask-image:linear-gradient(90deg,transparent,rgba(0,0,0,.08) 7%,rgba(0,0,0,.4) 17%,rgba(0,0,0,.85) 27%,#000 34%,#000 66%,rgba(0,0,0,.85) 73%,rgba(0,0,0,.4) 83%,rgba(0,0,0,.08) 93%,transparent),linear-gradient(180deg,transparent,rgba(0,0,0,.3) 4%,rgba(0,0,0,.8) 10%,#000 16%,#000 80%,rgba(0,0,0,.7) 89%,rgba(0,0,0,.2) 96%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,transparent,rgba(0,0,0,.08) 7%,rgba(0,0,0,.4) 17%,rgba(0,0,0,.85) 27%,#000 34%,#000 66%,rgba(0,0,0,.85) 73%,rgba(0,0,0,.4) 83%,rgba(0,0,0,.08) 93%,transparent),linear-gradient(180deg,transparent,rgba(0,0,0,.3) 4%,rgba(0,0,0,.8) 10%,#000 16%,#000 80%,rgba(0,0,0,.7) 89%,rgba(0,0,0,.2) 96%,transparent);mask-composite:intersect}
 .poster:has(img.real-poster[data-poster-state=ready]):not(:has(img.real-poster[hidden]))>:is(small,strong,.poster-bottom){visibility:hidden}
 .poster:has(img.real-poster[hidden]) .poster-ambience{display:none}
 #movies .movie-entry,.travel-country-card{position:relative;isolation:isolate;overflow:hidden;background:rgba(255,255,255,.72)!important;border:1px solid rgba(255,255,255,.74);box-shadow:inset 0 1px 0 #fff9,0 8px 26px #2333470a;backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2)}

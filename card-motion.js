@@ -35,8 +35,8 @@
       if (reduce.matches || keyboard || lastScroll === null || now-lastScroll > 350 || now < suppressUntil || entry.boundingClientRect.top < 0 || !card.animate || !card.classList.contains('card-reveal-pending')) {card.classList.remove('card-reveal-pending');continue;}
       if (rowTop === null || Math.abs(entry.boundingClientRect.top-rowTop) > 24) { rowTop = entry.boundingClientRect.top; stagger = 0; }
       const animation = card.animate([
-        { opacity: 0, transform: 'translateY(36px) scale(.985)' },
-        { opacity: 1, transform: 'translateY(0) scale(1)' }
+        { opacity: 0, transform: 'translateY(36px)' },
+        { opacity: 1, transform: 'translateY(0)' }
       ], { duration: 520, delay: Math.min(stagger++ * 70, 280), easing: 'cubic-bezier(0.23, 1, 0.32, 1)', fill: 'both' });
       active.set(card, animation);
       animation.finished.catch(() => {}).finally(() => {
